@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight, Lock } from 'lucide-react';
-import { getDay, TOTAL_DAYS } from '../data/calendar.js';
+import { TOTAL_DAYS } from '../data/calendar.js';
+import { useContent } from '../hooks/useContent.jsx';
 import { useAppState } from '../hooks/useAppState.jsx';
 import { daysUntilDecember, formatDecemberDate } from '../utils/date.js';
 import { GiftBox, Ornament } from './decor/Decor.jsx';
@@ -8,6 +9,7 @@ import { GiftBox, Ornament } from './decor/Decor.jsx';
 /** The featured card on Home: today's surprise, or the right state around it. */
 export default function DailyGiftCard() {
   const { phase, todayDay, isOpened, now, state } = useAppState();
+  const { getDay } = useContent();
 
   if (phase === 'before') {
     const d = daysUntilDecember(now);

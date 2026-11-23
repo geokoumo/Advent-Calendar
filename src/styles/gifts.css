@@ -1341,3 +1341,85 @@
   margin-left: var(--x);
   animation: float-up 1.8s var(--ease-out) both;
 }
+
+/* ===================== DAY EXTRAS (optional add-ons) ===================== */
+.extras {
+  display: grid;
+  gap: var(--s-10);
+  margin-top: var(--s-12);
+}
+.extras .eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.extras__song {
+  display: grid;
+  justify-items: center;
+  gap: var(--s-2);
+  padding: var(--s-6) var(--s-5);
+  text-align: center;
+  border-radius: var(--r-md);
+  background: linear-gradient(160deg, rgba(126, 44, 67, 0.55), rgba(56, 27, 41, 0.6));
+  box-shadow: inset 0 0 0 1px var(--hairline-strong);
+}
+.extras__song-title {
+  font-size: 1.75rem;
+}
+.extras__song-artist {
+  font-family: var(--font-serif);
+  font-style: italic;
+  color: var(--rose);
+}
+.extras__song-dedication {
+  max-width: 34ch;
+  color: var(--text-muted);
+}
+.extras__song .btn {
+  margin-top: var(--s-2);
+}
+.extras__poem {
+  text-align: center;
+}
+.extras__poem .divider {
+  margin-top: 0;
+}
+.extras__poem-title {
+  font-size: 1.5rem;
+  font-style: italic;
+  color: var(--gold-pale);
+  margin-bottom: var(--s-4);
+}
+.extras__poem-text {
+  white-space: pre-line;
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  line-height: 1.7;
+  color: var(--cream);
+}
+.extras__memory {
+  display: grid;
+  justify-items: center;
+  gap: var(--s-4);
+  text-align: center;
+}
+.extras__memory .photo {
+  width: min(100%, 340px);
+}
+.extras__memory-text {
+  font-family: var(--font-serif);
+  font-size: 1.1875rem;
+  line-height: 1.55;
+  color: var(--cream);
+  max-width: 34ch;
+}
+.extras__activity {
+  display: grid;
+  gap: var(--s-3);
+  padding: var(--s-6) var(--s-5);
+  border-radius: var(--r-md);
+  border: 1px dashed var(--hairline-strong);
+  font-family: var(--font-serif);
+  font-size: 1.1875rem;
+  color: var(--cream);
+}

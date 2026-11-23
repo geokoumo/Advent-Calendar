@@ -1,16 +1,17 @@
 import { useNavigate } from 'react-router-dom';
 import CalendarTile from './CalendarTile.jsx';
-import { DAYS } from '../data/calendar.js';
+import { useContent } from '../hooks/useContent.jsx';
 import { MICROCOPY } from '../data/config.js';
 import { useAppState } from '../hooks/useAppState.jsx';
 
 export default function CalendarGrid() {
   const navigate = useNavigate();
+  const { days } = useContent();
   const { isUnlocked, isOpened, todayDay, phase, toast } = useAppState();
 
   return (
     <div className="calendar-grid" role="list">
-      {DAYS.map((entry, i) => {
+      {days.map((entry, i) => {
         const status = !isUnlocked(entry.day) ? 'locked' : isOpened(entry.day) ? 'opened' : 'available';
         return (
           <div role="listitem" key={entry.day} className={entry.day === 25 ? 'calendar-grid__finale' : ''}>

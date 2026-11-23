@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAppState } from '../hooks/useAppState.jsx';
 import { readDevSettings, writeDevSettings } from '../utils/devFlags.js';
 import { CALENDAR_YEAR } from '../data/config.js';
-import { DAYS } from '../data/calendar.js';
+import { useContent } from '../hooks/useContent.jsx';
 import { EASTER_EGGS } from '../data/easterEggs.js';
 
 const PRESETS = [
@@ -21,6 +21,7 @@ export default function DevPanel() {
   const [settings, setSettings] = useState(readDevSettings);
   const { actions, now, discoverEgg } = useAppState();
   const navigate = useNavigate();
+  const { days: DAYS } = useContent();
 
   const update = (patch) => {
     const next = { ...settings, ...patch };

@@ -1,18 +1,20 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, ChevronLeft, ChevronRight, Lock } from 'lucide-react';
-import { DAYS, getDay } from '../data/calendar.js';
 import { MICROCOPY } from '../data/config.js';
 import { useAppState } from '../hooks/useAppState.jsx';
+import { useContent } from '../hooks/useContent.jsx';
 import { formatDecemberDate } from '../utils/date.js';
 import GiftRenderer from '../components/gifts/GiftRenderer.jsx';
 import GiftReveal from '../components/GiftReveal.jsx';
+import DayExtras from '../components/DayExtras.jsx';
 import Button from '../components/Button.jsx';
 import { Divider, Ornament } from '../components/decor/Decor.jsx';
 import NotFound from './NotFound.jsx';
 
 export default function GiftPage() {
   const { day: param } = useParams();
+  const { days, getDay } = useContent();
   const entry = getDay(param);
   const navigate = useNavigate();
   const location = useLocation();
@@ -20,7 +22,9 @@ export default function GiftPage() {
   const unlocked = entry ? isUnlocked(entry.day) : false;
   // Capture "first time" once per visit, before we mark it opened.
   const [firstTime] = useState(() => (entry ? !isOpened(entry.day) : false));
-  const [revealing, setRevealing] = useState(firstTime && unlocked);
+  // Opening ceremony: 'standard' | 'grand' (longer, brighter) | 'none'. Set per day in the admin editor.
+  const opening = entry?.animation?.opening || (entry?.special ? 'grand' : 'standard');
+  const [revealing, setRevealing] = useState(firstTime && unlocked && opening !== 'none');
   const backTo = location.state?.from || '/calendar';
 
   useEffect(() => {
@@ -52,7 +56,7 @@ export default function GiftPage() {
     );
   }
 
-  const unlockedDays = DAYS.filter((d) => isUnlocked(d.day)).map((d) => d.day);
+  const unlockedDays = days.filter((d) => isUnlocked(d.day)).map((d) => d.day);
   const pos = unlockedDays.indexOf(entry.day);
   const prev = unlockedDays[pos - 1];
   const next = unlockedDays[pos + 1];
@@ -60,7 +64,7 @@ export default function GiftPage() {
 
   return (
     <div className={`page gift-page gift-page--${entry.type} ${entry.special ? 'gift-page--special' : ''} ${revealing ? 'is-hidden' : ''}`} key={entry.day}>
-      {revealing && <GiftReveal day={entry.day} special={entry.special} reduced={reducedMotion} onDone={doneRevealing} />}
+      {revealing && <GiftReveal day={entry.day} special={opening === 'grand'} reduced={reducedMotion} onDone={doneRevealing} />}
 
       <div className="gift-page__bar">
         <button className="icon-btn" onClick={() => (location.key !== 'default' ? navigate(-1) : navigate(backTo))} aria-label="Back">
@@ -82,6 +86,7 @@ export default function GiftPage() {
       {!revealing && (
         <main className="gift-page__content">
           <GiftRenderer entry={entry} />
+          <DayExtras extras={entry.extras} />
         </main>
       )}
 

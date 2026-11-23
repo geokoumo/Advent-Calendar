@@ -4,7 +4,9 @@
  * - Missing fields → filled from defaults.
  * - Newer schema than this build understands → read what we can, never crash.
  */
-export const STORAGE_KEY = '25dol:state';
+export const STORAGE_KEY = '25dol:state'; // Gina's real progress
+export const PREVIEW_STORAGE_KEY = '25dol:preview-state'; // admin preview sandbox (never her progress)
+export const GINA_VIEW_STORAGE_KEY = '25dol:gina-view-state'; // admin "View as Gina" sandbox
 export const STORAGE_VERSION = 1;
 
 export const DEFAULT_STATE = Object.freeze({
@@ -48,10 +50,10 @@ export function sanitize(raw) {
   };
 }
 
-export function loadState() {
+export function loadState(key = STORAGE_KEY) {
   let text = null;
   try {
-    text = localStorage.getItem(STORAGE_KEY);
+    text = localStorage.getItem(key);
   } catch {
     return sanitize(null); // storage unavailable (private mode etc.)
   }
@@ -62,7 +64,7 @@ export function loadState() {
     return sanitize(parsed);
   } catch {
     try {
-      localStorage.setItem(`${STORAGE_KEY}:corrupt-backup`, text);
+      localStorage.setItem(`${key}:corrupt-backup`, text);
     } catch {
       /* ignore */
     }
@@ -70,25 +72,50 @@ export function loadState() {
   }
 }
 
-let lastWritten = null;
-export function saveState(state) {
+const lastWritten = new Map(); // per storage key
+export function saveState(state, key = STORAGE_KEY) {
   const text = JSON.stringify(state);
-  if (text === lastWritten) return; // avoid redundant writes
+  if (text === lastWritten.get(key)) return; // avoid redundant writes
   try {
-    localStorage.setItem(STORAGE_KEY, text);
-    lastWritten = text;
+    localStorage.setItem(key, text);
+    lastWritten.set(key, text);
   } catch {
     /* quota / private mode — progress lives in memory for this session */
   }
 }
 
-export function clearState() {
+export function clearState(key = STORAGE_KEY) {
   try {
-    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(key);
   } catch {
     /* ignore */
   }
-  lastWritten = null;
+  lastWritten.delete(key);
+}
+
+/** Copies one progress namespace into another (used to seed sandboxes). */
+export function copyState(fromKey, toKey) {
+  saveState(loadState(fromKey), toKey);
+}
+
+/**
+ * Returns `state` with one day "un-opened": the day, its interactions, RSVP,
+ * coupon choice/redemptions and (for Day 25) the finale flag. Used by admin
+ * preview so the opening animation and interactions can be replayed.
+ */
+export function forgetDay(state, day, couponIds = []) {
+  const suffix = `-${day}`;
+  const strip = (obj, pred) => Object.fromEntries(Object.entries(obj).filter(([k]) => !pred(k)));
+  return {
+    ...state,
+    openedDays: state.openedDays.filter((d) => d !== day),
+    openedAt: strip(state.openedAt, (k) => Number(k) === day),
+    completedInteractions: strip(state.completedInteractions, (k) => k.endsWith(suffix)),
+    rsvps: strip(state.rsvps, (k) => Number(k) === day),
+    chosenCoupons: strip(state.chosenCoupons, (k) => Number(k) === day),
+    redeemedCoupons: strip(state.redeemedCoupons, (k) => couponIds.includes(k)),
+    finaleCompleted: day === 25 ? false : state.finaleCompleted,
+  };
 }
 
 export const normalizeAnswer = (s) =>

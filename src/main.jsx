@@ -13,6 +13,7 @@ import './styles/base.css';
 import './styles/components.css';
 import './styles/pages.css';
 import './styles/gifts.css';
+import './styles/auth.css';
 import App from './App.jsx';
 
 // Capture the install prompt early (Chrome/Android); InstallHint picks it up.

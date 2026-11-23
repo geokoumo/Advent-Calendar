@@ -1,11 +1,12 @@
 import { useEffect, useRef } from 'react';
-import { useAppState } from '../hooks/useAppState.jsx';
+import { useOptionalAppState } from '../hooks/useAppState.jsx';
 
 /** Very light canvas snowfall. Off when motion is reduced or snow is disabled. */
 export default function Snowfall({ density = 1 }) {
   const ref = useRef(null);
-  const { reducedMotion, state } = useAppState();
-  const enabled = !reducedMotion && state.preferences.snow;
+  const app = useOptionalAppState(); // null on the login screen
+  const systemReduce = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const enabled = app ? !app.reducedMotion && app.state.preferences.snow : !systemReduce;
 
   useEffect(() => {
     if (!enabled) return;

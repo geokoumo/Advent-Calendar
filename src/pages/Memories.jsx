@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { DAYS } from '../data/calendar.js';
+import { useContent } from '../hooks/useContent.jsx';
 import { MICROCOPY } from '../data/config.js';
 import { EASTER_EGG_COUNT } from '../data/easterEggs.js';
 import { useAppState } from '../hooks/useAppState.jsx';
@@ -18,13 +18,14 @@ const FILTERS = [
 
 export default function Memories() {
   const { state } = useAppState();
+  const { days } = useContent();
   const [filter, setFilter] = useState('all');
 
   // De-duplicated, ordered by day, excluding entries marked memory:false.
   const memories = useMemo(() => {
     const opened = new Set(state.openedDays);
-    return DAYS.filter((d) => opened.has(d.day) && d.memory !== false);
-  }, [state.openedDays]);
+    return days.filter((d) => opened.has(d.day) && d.memory !== false);
+  }, [state.openedDays, days]);
 
   const types = FILTERS.find((f) => f.id === filter)?.types;
   const shown = types ? memories.filter((m) => types.includes(m.type)) : memories;

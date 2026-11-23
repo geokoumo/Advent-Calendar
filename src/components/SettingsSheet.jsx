@@ -1,4 +1,8 @@
+import { useNavigate } from 'react-router-dom';
+import { LogOut } from 'lucide-react';
 import Modal from './Modal.jsx';
+import Button from './Button.jsx';
+import { useAuth } from '../auth/AuthContext.jsx';
 import { useAppState } from '../hooks/useAppState.jsx';
 import { InstallSteps, isStandalone } from './InstallHint.jsx';
 import { Divider } from './decor/Decor.jsx';
@@ -17,7 +21,20 @@ function Toggle({ id, label, hint, checked, onChange, disabled }) {
 }
 
 export default function SettingsSheet({ open, onClose }) {
-  const { state, actions, reducedMotion } = useAppState();
+  const { state, actions, reducedMotion, mode } = useAppState();
+  const { logout, setAdminMode } = useAuth();
+  const navigate = useNavigate();
+  const signOut = async () => {
+    onClose();
+    if (mode === 'gina-view') {
+      // Admin testing as Gina: simulate her signing out without ending the admin session.
+      setAdminMode(null);
+      navigate('/admin/login-preview');
+      return;
+    }
+    await logout();
+    navigate('/login', { replace: true });
+  };
   const systemReduce = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
   return (
     <Modal open={open} onClose={onClose} labelledBy="settings-title" className="settings">
@@ -49,6 +66,7 @@ export default function SettingsSheet({ open, onClose }) {
         </>
       )}
       <p className="settings__note">Everything you open is saved on this phone only. Nothing is shared, nothing is tracked.</p>
+      <Button variant="text" icon={LogOut} onClick={signOut} className="settings__signout">Sign out</Button>
     </Modal>
   );
 }

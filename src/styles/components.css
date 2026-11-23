@@ -847,3 +847,21 @@
   background: #4a1620 !important;
   border: 1px solid #8a2a3c !important;
 }
+
+.settings__signout {
+  margin-top: var(--s-4);
+  color: var(--text-muted);
+}
+
+/* Admin preview / View-as-Gina bars sit above the page: push content down. */
+.app--preview {
+  --safe-top: calc(env(safe-area-inset-top, 0px) + 44px);
+}
+.app--gina-view {
+  --safe-top: calc(env(safe-area-inset-top, 0px) + 30px);
+}
+.btn--danger {
+  color: var(--ivory);
+  background: rgba(140, 36, 58, 0.55);
+  box-shadow: inset 0 0 0 1px rgba(216, 120, 140, 0.55);
+}

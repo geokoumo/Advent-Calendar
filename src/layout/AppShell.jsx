@@ -7,9 +7,12 @@ import Toast from '../components/Toast.jsx';
 import EasterEggModal from '../components/EasterEggModal.jsx';
 import { MICROCOPY } from '../data/config.js';
 import { DEV_TOOLS_ENABLED } from '../utils/devFlags.js';
+import { useAppState } from '../hooks/useAppState.jsx';
 
 // Only bundled when dev tools are enabled — absent from her production build.
 const DevPanel = DEV_TOOLS_ENABLED ? lazy(() => import('../dev/DevPanel.jsx')) : null;
+// Admin preview / View-as-Gina bars. Only rendered (and downloaded) in admin modes.
+const AdminOverlay = lazy(() => import('../admin/AdminOverlay.jsx'));
 
 function useOnline() {
   const [online, setOnline] = useState(typeof navigator === 'undefined' ? true : navigator.onLine);
@@ -29,6 +32,7 @@ function useOnline() {
 export default function AppShell() {
   const location = useLocation();
   const online = useOnline();
+  const { mode } = useAppState();
   const inGift = location.pathname.startsWith('/day/');
 
   useEffect(() => {
@@ -36,7 +40,7 @@ export default function AppShell() {
   }, [location.pathname, inGift]);
 
   return (
-    <div className={`app ${inGift ? 'app--immersive' : ''}`}>
+    <div className={`app ${inGift ? 'app--immersive' : ''} ${mode !== 'live' ? `app--${mode}` : ''}`}>
       <Snowfall density={inGift ? 0.5 : 1} />
       {!online && (
         <p className="offline" role="status">
@@ -49,7 +53,12 @@ export default function AppShell() {
       {!inGift && <BottomNavigation />}
       <Toast />
       <EasterEggModal />
-      {DevPanel && (
+      {mode !== 'live' && (
+        <Suspense fallback={null}>
+          <AdminOverlay />
+        </Suspense>
+      )}
+      {DevPanel && mode === 'live' && (
         <Suspense fallback={null}>
           <DevPanel />
         </Suspense>

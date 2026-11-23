@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { clearState, loadState, sanitize, saveState } from '../utils/storage.js';
+import { clearState, forgetDay, loadState, sanitize, saveState, STORAGE_KEY } from '../utils/storage.js';
 import { getNow, getPhase, getTodayDay, isDayUnlocked, msUntilMidnight } from '../utils/date.js';
 import { DEV_TOOLS_ENABLED, readDevSettings } from '../utils/devFlags.js';
 import { EASTER_EGGS } from '../data/easterEggs.js';
@@ -46,6 +46,8 @@ function reducer(state, action) {
       return state.finaleCompleted ? state : { ...state, finaleCompleted: true };
     case 'pref':
       return { ...state, preferences: { ...state.preferences, [action.key]: action.value } };
+    case 'forgetDay':
+      return forgetDay(state, action.day, action.couponIds);
     case 'reset':
       return sanitize(null);
     default:
@@ -53,11 +55,20 @@ function reducer(state, action) {
   }
 }
 
-function useClock() {
-  const [now, setNow] = useState(getNow);
+/** `simulatedDate` ('YYYY-MM-DD') is only passed in admin preview. */
+function computeNow(simulatedDate) {
+  const m = simulatedDate && /^(\d{4})-(\d{2})-(\d{2})$/.exec(simulatedDate);
+  if (!m) return getNow();
+  const real = new Date();
+  return new Date(+m[1], +m[2] - 1, +m[3], real.getHours(), real.getMinutes(), real.getSeconds());
+}
+
+function useClock(simulatedDate) {
+  const [now, setNow] = useState(() => computeNow(simulatedDate));
   useEffect(() => {
     let timer;
-    const refresh = () => setNow(getNow());
+    const refresh = () => setNow(computeNow(simulatedDate));
+    refresh();
     const schedule = () => {
       clearTimeout(timer);
       timer = setTimeout(() => {
@@ -76,7 +87,7 @@ function useClock() {
       window.removeEventListener('focus', refresh);
       window.removeEventListener('dol:dev-change', refresh);
     };
-  }, []);
+  }, [simulatedDate]);
   return now;
 }
 
@@ -93,15 +104,22 @@ function useSystemReducedMotion() {
   return reduce;
 }
 
-export function AppStateProvider({ children }) {
-  const [state, dispatch] = useReducer(reducer, undefined, loadState);
-  const now = useClock();
+/**
+ * mode:          'live' (Gina's real progress) | 'preview' | 'gina-view' (admin sandboxes)
+ * storageKey:    where progress is persisted — sandboxes use their own key, so
+ *                they can never touch the real progress.
+ * simulatedDate: admin preview only.
+ * unlockAll:     admin preview only — bypasses date locks.
+ */
+export function AppStateProvider({ children, mode = 'live', storageKey = STORAGE_KEY, simulatedDate = null, unlockAll = false }) {
+  const [state, dispatch] = useReducer(reducer, storageKey, loadState);
+  const now = useClock(simulatedDate);
   const systemReduce = useSystemReducedMotion();
   const [toastMsg, setToastMsg] = useState(null);
   const [activeEgg, setActiveEgg] = useState(null);
   const toastTimer = useRef();
 
-  useEffect(() => saveState(state), [state]);
+  useEffect(() => saveState(state, storageKey), [state, storageKey]);
 
   const reducedMotion = systemReduce || state.preferences.reducedMotion;
   useEffect(() => {
@@ -137,11 +155,12 @@ export function AppStateProvider({ children }) {
   const value = useMemo(
     () => ({
       state,
+      mode,
       now,
       phase,
       todayDay: getTodayDay(now),
       // After the finale, everything stays open forever (even if the clock is wrong).
-      isUnlocked: (day) => bypassLocks || state.finaleCompleted || isDayUnlocked(day, now),
+      isUnlocked: (day) => unlockAll || bypassLocks || state.finaleCompleted || isDayUnlocked(day, now),
       isOpened: (day) => state.openedDays.includes(day),
       reducedMotion,
       toast,
@@ -159,16 +178,22 @@ export function AppStateProvider({ children }) {
         seenMessage: (id) => dispatch({ type: 'seenMessage', id }),
         completeFinale: () => dispatch({ type: 'finale' }),
         setPreference: (key, value) => dispatch({ type: 'pref', key, value }),
+        forgetDay: (day, couponIds) => dispatch({ type: 'forgetDay', day, couponIds }),
         resetAll: () => {
-          clearState();
+          clearState(storageKey);
           dispatch({ type: 'reset' });
         },
       },
     }),
-    [state, now, phase, bypassLocks, reducedMotion, toast, toastMsg, activeEgg, discoverEgg]
+    [state, mode, now, phase, unlockAll, bypassLocks, reducedMotion, toast, toastMsg, activeEgg, discoverEgg, storageKey]
   );
 
   return <AppStateContext.Provider value={value}>{children}</AppStateContext.Provider>;
+}
+
+/** Same as useAppState, but returns null outside the experience (e.g. on the login screen). */
+export function useOptionalAppState() {
+  return useContext(AppStateContext);
 }
 
 export function useAppState() {
