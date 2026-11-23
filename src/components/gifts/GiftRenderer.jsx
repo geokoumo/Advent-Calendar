@@ -33,5 +33,5 @@ export default function GiftRenderer({ entry }) {
   if (!Component || !entry.content) {
     return <p className="gift-intro gift-missing">{MICROCOPY.missingContent}</p>;
   }
-  return <Component content={entry.content} day={entry.day} />;
+  return <Component content={entry.content} day={entry.day} gifts={entry.gifts} />;
 }

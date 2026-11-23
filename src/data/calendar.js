@@ -17,15 +17,31 @@
  *  CONTENT TYPES (the `type` field)
  *    letter · photo · video · song · gift · coupon · date · game · secret
  *    dream · reasons · finale
- *  Each one is documented at its first use below.
+ *  Each one is documented at its first use below (or in the README).
  *
  *  OPTIONAL FIELDS on any day
+ *    gifts: [{ id, name, brand? }] → the gift(s) behind this door. This is the
+ *                                    gift schedule. Ids are unique and stable.
+ *                                    On a 'gift' day with 2+ entries, the
+ *                                    unwrapped view lists every item inside.
  *    memory: false                 → don't show this day in "Our Memories"
  *    memory: { image, description } → override how it appears there
  *    special: true                 → gold "special" tile on the calendar
+ *
+ *  GIFT SCHEDULE (8 Sephora products, never on 3 consecutive days)
+ *    1 intro letter          · 2 teddy keychain      · 3 Sephora #1
+ *    4 printed photo         · 5 Christmas socks     · 6 satin scrunchies
+ *    7 personal letter       · 8 Sephora #2          · 9 date coupon
+ *   10 gingerbread           · 11 Sephora #3         · 12 hot chocolate
+ *   13 Sol de Janeiro        · 14 Sephora #4 + candle · 15 silver bracelet
+ *   16 body mist             · 17 Sephora #5 + plush teddy · 18 ornament
+ *   19 our evening (date)    · 20 Sephora #6         · 21 personal surprise
+ *   22 Sephora #7 + #8       · 23 love letter        · 24 Christmas Eve surprise
+ *   25 smartwatch (finale)
  * ========================================================================== */
 
 const photo = (caption, opts = {}) => ({ src: null, alt: caption, caption, ...opts });
+const sephora = (n) => ({ id: `sephora-${n}`, name: `Sephora Gift #${n}`, brand: 'Sephora' });
 
 export const DAYS = [
   /* ---------------------------------------------------------------------- *
@@ -35,10 +51,11 @@ export const DAYS = [
    * ---------------------------------------------------------------------- */
   {
     day: 1,
-    title: 'A Little Hello',
+    title: 'The Beginning',
     subtitle: 'Where it all begins',
     teaser: 'I have something to tell you…',
     type: 'letter',
+    gifts: [], // introductory letter, no physical gift
     content: {
       greeting: 'My love,',
       body: [
@@ -50,19 +67,40 @@ export const DAYS = [
       signature: 'With all my love',
     },
   },
+
+  /* ---------------------------------------------------------------------- *
+   * type: 'gift'  — a real-world present
+   * content: { reveal: 'unwrap' | 'scratch' | 'findHeart', headline, message: [..],
+   *            clue?, image?: photo(...) }
+   * ---------------------------------------------------------------------- */
   {
     day: 2,
-    title: 'One of My Favourite Things',
-    subtitle: 'A small note',
-    teaser: 'Just one thing. There are many more.',
-    type: 'letter',
+    title: 'A Little Hug',
+    subtitle: 'Something to keep close',
+    teaser: 'Something small to carry with you.',
+    type: 'gift',
+    gifts: [{ id: 'teddy-keychain', name: 'Teddy Bear Keychain' }],
     content: {
-      variant: 'note',
-      greeting: 'One of my favourite things about you',
-      body: [
-        '[PLACEHOLDER] The way you laugh at your own joke before you’ve even finished telling it — and how I end up laughing too, without having heard the end.',
+      reveal: 'unwrap',
+      headline: 'A hug you can carry',
+      message: [
+        '[PLACEHOLDER] A little teddy bear for your keys — so whenever you leave the house, a small hug from me goes with you.',
       ],
-      signature: '— me',
+      clue: '[PLACEHOLDER] Where to find it.',
+    },
+  },
+  {
+    day: 3,
+    title: 'A Little Extra Shine',
+    subtitle: 'A beauty surprise',
+    teaser: 'Something to make you sparkle.',
+    type: 'gift',
+    gifts: [sephora(1)],
+    content: {
+      reveal: 'unwrap',
+      headline: 'A little extra shine',
+      message: ['[PLACEHOLDER] The first little beauty surprise. Not because you need it — because you deserve it.'],
+      clue: '[PLACEHOLDER] Where to find it.',
     },
   },
 
@@ -72,130 +110,75 @@ export const DAYS = [
    * One photo = big polaroid. Several = swipeable gallery.
    * ---------------------------------------------------------------------- */
   {
-    day: 3,
-    title: 'A Memory',
+    day: 4,
+    title: 'A Moment of Us',
     subtitle: 'One of our favourite moments',
     teaser: 'Do you remember this one?',
     type: 'photo',
+    gifts: [{ id: 'printed-photo', name: 'Printed photo of us' }],
     content: {
       intro: 'Do you remember this day?',
       photos: [photo('[PLACEHOLDER] Us, that evening', { date: 'Summer 2025' })],
       story:
-        '[PLACEHOLDER] Write a few lines about what happened that day — what you were wearing, what we were laughing about, the thing you said that I still think about.',
+        '[PLACEHOLDER] Write a few lines about this moment. Then tell her where the printed copy is waiting — this one is for her wall, not just her phone.',
     },
   },
-
-  /* ---------------------------------------------------------------------- *
-   * type: 'song'
-   * content: { song, artist, why, link?, linkLabel?, embed?, tracks?, playlistLink? }
-   * `embed` (optional) is only loaded after she taps — nothing autoplays.
-   * ---------------------------------------------------------------------- */
-  {
-    day: 4,
-    title: 'Your Song',
-    subtitle: 'Press play when you’re ready',
-    teaser: 'Put your headphones on.',
-    type: 'song',
-    content: {
-      song: '[PLACEHOLDER] Song Title',
-      artist: 'Artist Name',
-      why: [
-        '[PLACEHOLDER] Tell her why this is her song. When did you first hear it and think of her? Which line is the one?',
-        'Listen to it once all the way through, without doing anything else.',
-      ],
-      lyric: '“[PLACEHOLDER] The one line that is her.”',
-      link: null, // e.g. 'https://open.spotify.com/track/…'
-      linkLabel: 'Listen to our song',
-    },
-  },
-
-  /* ---------------------------------------------------------------------- *
-   * type: 'gift'  — a real-world present
-   * content: { reveal: 'unwrap' | 'scratch' | 'findHeart', headline, message: [..],
-   *            clue?, image?: photo(...) }
-   * ---------------------------------------------------------------------- */
   {
     day: 5,
-    title: 'A Little Sweetness',
-    subtitle: 'Something to unwrap',
-    teaser: 'Something sweet is nearby.',
+    title: 'Cozy Christmas',
+    subtitle: 'Something warm',
+    teaser: 'For cold toes and lazy mornings.',
     type: 'gift',
+    gifts: [{ id: 'christmas-socks', name: 'Christmas socks' }],
     content: {
       reveal: 'unwrap',
-      headline: 'Something sweet for someone sweeter',
-      message: ['[PLACEHOLDER] Because some days just need chocolate. Today is one of those days, and I decided it for you.'],
-      clue: '[PLACEHOLDER] Look in the pocket of your winter coat.',
+      headline: 'Warm toes, cozy heart',
+      message: ['[PLACEHOLDER] Christmas socks for slow mornings, movie nights and stealing the warm side of the sofa.'],
+      clue: '[PLACEHOLDER] Where to find it.',
     },
   },
   {
     day: 6,
-    title: 'Open When You Need a Hug',
-    subtitle: 'For a difficult day',
-    teaser: 'Keep this one close.',
-    type: 'letter',
+    title: 'Something for Your Hair',
+    subtitle: 'A soft little gift',
+    teaser: 'Soft, silky, and just for you.',
+    type: 'gift',
+    gifts: [{ id: 'satin-scrunchies', name: 'Satin Hair Scrunchies' }],
     content: {
-      variant: 'comfort',
-      greeting: 'Hey, you.',
-      body: [
-        '[PLACEHOLDER] If today was heavy, put it down for a minute. You don’t have to fix anything right now.',
-        'Breathe in for four. Hold it. Let it go slowly. One more time.',
-        'Whatever happened, it doesn’t change a single thing about how I see you. You are still the person I am proudest of.',
-        'Now go text me. I mean it.',
-      ],
-      signature: 'Holding you from wherever I am',
+      reveal: 'unwrap',
+      headline: 'Something for your hair',
+      message: ['[PLACEHOLDER] Satin scrunchies — gentle on your hair, and a little bit fancy. Like you.'],
+      clue: '[PLACEHOLDER] Where to find it.',
     },
   },
-
-  /* ---------------------------------------------------------------------- *
-   * type: 'game'
-   * content.game: 'quiz'      → { questions: [{ q, options:[..], answer: index, note? }], result, photo? }
-   * content.game: 'challenge' → { intro, steps:[..], doneText }
-   * ---------------------------------------------------------------------- */
   {
     day: 7,
-    title: 'Our Firsts',
-    subtitle: 'A little memory game',
-    teaser: 'How well do you remember?',
-    type: 'game',
+    title: 'Something from My Heart',
+    subtitle: 'A personal letter',
+    teaser: 'Words I wanted you to keep.',
+    type: 'letter',
+    gifts: [{ id: 'personal-letter', name: 'Personal letter' }],
     content: {
-      game: 'quiz',
-      intro: 'Three little questions about our firsts. No pressure — I already know you’ll win.',
-      questions: [
-        {
-          q: '[PLACEHOLDER] Where did we have our first date?',
-          options: ['The little café', 'The cinema', 'A walk by the sea'],
-          answer: 0,
-          note: 'You ordered the thing I would have ordered.',
-        },
-        {
-          q: '[PLACEHOLDER] What was the first song we danced to?',
-          options: ['Song A', 'Song B', 'We didn’t dance, we swayed'],
-          answer: 2,
-          note: 'Badly. Beautifully.',
-        },
-        {
-          q: '[PLACEHOLDER] Who said “I love you” first?',
-          options: ['You', 'Me', 'Both at once'],
-          answer: 1,
-          note: 'And I have meant it more every day since.',
-        },
+      greeting: 'My love,',
+      body: [
+        '[PLACEHOLDER] Write a personal letter here — something you’ve wanted to tell her for a while.',
+        'It doesn’t need to be long. It needs to be true.',
       ],
-      result: 'Every first with you became a favourite.',
-      photo: photo('[PLACEHOLDER] Our very first photo together', { date: 'The beginning' }),
+      signature: 'From my heart',
     },
   },
   {
     day: 8,
-    title: 'A Little Gift',
-    subtitle: 'A small surprise',
-    teaser: 'Small, but chosen carefully.',
+    title: 'Another Little Surprise',
+    subtitle: 'Scratch to find it',
+    teaser: 'Something is hidden. Find it.',
     type: 'gift',
+    gifts: [sephora(2)],
     content: {
-      reveal: 'unwrap',
-      headline: 'A little something',
-      message: ['[PLACEHOLDER] I saw this and thought of you immediately. That happens a lot, actually.'],
-      clue: '[PLACEHOLDER] It’s on the second shelf of the bookcase, behind the blue book.',
-      image: photo('[PLACEHOLDER] A photo hint of the gift'),
+      reveal: 'scratch',
+      headline: 'Another little surprise',
+      message: ['[PLACEHOLDER] Beauty surprise number two. You’re starting to see a pattern, aren’t you?'],
+      clue: '[PLACEHOLDER] Where to find it.',
     },
   },
 
@@ -207,18 +190,19 @@ export const DAYS = [
    * ---------------------------------------------------------------------- */
   {
     day: 9,
-    title: 'Love Coupon',
+    title: 'A Date Just for Us',
     subtitle: 'Redeemable whenever you like',
-    teaser: 'Valid for one wonderful thing.',
+    teaser: 'Valid for one wonderful evening.',
     type: 'coupon',
+    gifts: [{ id: 'date-coupon', name: 'Romantic date coupon' }],
     content: {
       intro: 'Keep this safe. When you’re ready to use it, tap redeem and show it to me.',
       coupons: [
         {
-          id: 'breakfast-in-bed',
-          title: 'Breakfast in Bed',
-          description: '[PLACEHOLDER] Coffee exactly how you like it, something warm from the oven, and absolutely no getting up early.',
-          terms: 'Valid any weekend morning. Pyjamas mandatory.',
+          id: 'date-just-for-us',
+          title: 'A Date Just for Us',
+          description: '[PLACEHOLDER] One romantic date, planned entirely by me. Dress up, switch off, and let me take care of everything.',
+          terms: 'Valid any evening you choose. Phones stay in pockets.',
           expires: 'Never',
         },
       ],
@@ -226,207 +210,170 @@ export const DAYS = [
   },
   {
     day: 10,
-    title: 'Photo Challenge',
-    subtitle: 'A new memory, together',
-    teaser: 'Today we make a memory.',
-    type: 'game',
+    title: 'Something Sweet',
+    subtitle: 'A little treat',
+    teaser: 'Something sweet is nearby.',
+    type: 'gift',
+    gifts: [{ id: 'gingerbread', name: 'Gingerbread' }],
     content: {
-      game: 'challenge',
-      intro: 'Today’s gift is something we make together. Complete the list before midnight — or before the weekend, I’m not strict.',
-      steps: [
-        '[PLACEHOLDER] A photo of us with something sparkly',
-        'A selfie with a stranger’s dog (ask first)',
-        'Our reflection in a shop window',
-        'The best hot chocolate in town',
-        'One photo where neither of us is looking at the camera',
-      ],
-      doneText: 'Challenge complete. Send them all to me — they’re going in the album.',
+      reveal: 'unwrap',
+      headline: 'Something sweet for someone sweeter',
+      message: ['[PLACEHOLDER] Gingerbread — because December should taste like December.'],
+      clue: '[PLACEHOLDER] Where to find it.',
     },
   },
-
-  /* ---------------------------------------------------------------------- *
-   * type: 'video'
-   * content: { intro, src?, embed?, poster?, caption, fallbackText: [..] }
-   * Never autoplays. If no video is set, the fallback text is shown.
-   * ---------------------------------------------------------------------- */
   {
     day: 11,
-    title: 'A Few Words',
-    subtitle: 'Said out loud',
-    teaser: 'Some things are better said.',
-    type: 'video',
+    title: 'A Little Treat',
+    subtitle: 'A beauty surprise',
+    teaser: 'Just a little treat for you.',
+    type: 'gift',
+    gifts: [sephora(3)],
     content: {
-      intro: 'I wanted you to hear this one in my voice.',
-      src: null, // e.g. '/videos/day-11.mp4'
-      embed: null, // or e.g. 'https://www.youtube-nocookie.com/embed/VIDEO_ID'
-      poster: null,
-      caption: '[PLACEHOLDER] Recorded on a Tuesday night, three takes.',
-      fallbackText: [
-        '[PLACEHOLDER] (If you don’t record a video, these words are shown instead.)',
-        'You make ordinary days feel like something worth writing down.',
+      reveal: 'unwrap',
+      headline: 'A little treat',
+      message: ['[PLACEHOLDER] Beauty surprise number three. Take five minutes today just for yourself.'],
+      clue: '[PLACEHOLDER] Where to find it.',
+    },
+  },
+  {
+    day: 12,
+    title: 'A Cozy Moment',
+    subtitle: 'Something warm',
+    teaser: 'Grab a blanket.',
+    type: 'gift',
+    gifts: [{ id: 'hot-chocolate', name: 'Hot chocolate' }],
+    content: {
+      reveal: 'unwrap',
+      headline: 'A cozy moment',
+      message: ['[PLACEHOLDER] Hot chocolate for a cold evening. Blanket, mug, and me — that’s the plan.'],
+      clue: '[PLACEHOLDER] Where to find it.',
+    },
+  },
+  {
+    day: 13,
+    title: 'Your Favorite Scent',
+    subtitle: 'Scratch to find it',
+    teaser: 'Something that smells like you.',
+    type: 'gift',
+    gifts: [{ id: 'sol-de-janeiro', name: 'Sol de Janeiro gift', brand: 'Sol de Janeiro' }],
+    content: {
+      reveal: 'scratch',
+      headline: 'Your favourite scent',
+      message: ['[PLACEHOLDER] A little Sol de Janeiro — summer in a bottle, right in the middle of December.'],
+      clue: '[PLACEHOLDER] Where to find it.',
+    },
+  },
+  {
+    day: 14,
+    title: 'A Little Glow',
+    subtitle: 'Two gifts in one',
+    teaser: 'Something to glow, something to glow by.',
+    type: 'gift',
+    gifts: [sephora(4), { id: 'candle', name: 'Candle' }], // combined gift
+    content: {
+      reveal: 'unwrap',
+      headline: 'A little glow',
+      message: [
+        '[PLACEHOLDER] Today there are two: a beauty surprise for your glow, and a candle for the room around you.',
+        'Light it tonight. I’ll be thinking of you.',
       ],
+      clue: '[PLACEHOLDER] Where to find them.',
+    },
+  },
+  {
+    day: 15,
+    title: 'Something to Keep',
+    subtitle: 'Find the heart',
+    teaser: 'Something meant to stay.',
+    type: 'gift',
+    gifts: [{ id: 'silver-bracelet', name: 'Silver bracelet' }],
+    content: {
+      reveal: 'findHeart',
+      headline: 'Something to keep',
+      message: ['[PLACEHOLDER] A silver bracelet — something to wear long after December is over. Like us.'],
+      clue: '[PLACEHOLDER] Where to find it.',
+    },
+  },
+  {
+    day: 16,
+    title: 'A Scent to Remember',
+    subtitle: 'A little mist',
+    teaser: 'A scent for every day.',
+    type: 'gift',
+    gifts: [{ id: 'body-mist', name: 'Body mist' }],
+    content: {
+      reveal: 'unwrap',
+      headline: 'A scent to remember',
+      message: ['[PLACEHOLDER] A body mist — so every time you wear it, you’ll remember this December.'],
+      clue: '[PLACEHOLDER] Where to find it.',
+    },
+  },
+  {
+    day: 17,
+    title: 'Another Hug',
+    subtitle: 'Find the heart',
+    teaser: 'Two surprises are hiding today.',
+    type: 'gift',
+    gifts: [sephora(5), { id: 'plush-teddy', name: 'Plush Teddy Bear' }], // combined gift
+    content: {
+      reveal: 'findHeart',
+      headline: 'Another hug',
+      message: [
+        '[PLACEHOLDER] Two today: a beauty surprise, and a big soft teddy bear for the nights I can’t be there to hug you myself.',
+      ],
+      clue: '[PLACEHOLDER] Where to find them.',
+    },
+  },
+  {
+    day: 18,
+    title: 'A Piece of Christmas',
+    subtitle: 'For our tree',
+    teaser: 'Something for the tree.',
+    type: 'gift',
+    gifts: [{ id: 'christmas-ornament', name: 'Christmas ornament' }],
+    content: {
+      reveal: 'unwrap',
+      headline: 'A piece of Christmas',
+      message: ['[PLACEHOLDER] An ornament for our tree — this year, and every Christmas after.'],
+      clue: '[PLACEHOLDER] Where to find it.',
     },
   },
 
   /* ---------------------------------------------------------------------- *
    * type: 'date'  — an invitation
-   * content: { invitation, when, where, wear?, bring?, note, rsvp }
+   * content: { invitation, event, when, where, wear?, bring?, note, rsvp }
    * ---------------------------------------------------------------------- */
   {
-    day: 12,
-    title: 'Movie Night',
+    day: 19,
+    title: 'Our Evening',
     subtitle: 'You’re invited',
     teaser: 'Clear your evening.',
     type: 'date',
+    gifts: [{ id: 'our-evening', name: 'Romantic date / activity' }],
     content: {
       invitation: 'The pleasure of your company is requested for',
-      event: 'A Christmas Movie Night',
-      when: '[PLACEHOLDER] Saturday, 8 pm',
-      where: 'Our sofa, under the big blanket',
-      wear: 'Your softest socks',
-      bring: 'Nothing. I’ve got popcorn, cocoa, and the good chocolate.',
-      note: '[PLACEHOLDER] You choose the film. I promise not to fall asleep. (I will try very hard not to fall asleep.)',
+      event: 'An Evening, Just Us',
+      when: '[PLACEHOLDER] Day, time',
+      where: '[PLACEHOLDER] Where we’re going',
+      wear: '[PLACEHOLDER] Something you feel beautiful in',
+      bring: 'Nothing but you.',
+      note: '[PLACEHOLDER] Describe the evening — or keep it a mystery.',
       rsvp: 'I’ll be there',
     },
   },
   {
-    day: 13,
-    title: 'Somewhere We Went',
-    subtitle: 'A little journey back',
-    teaser: 'Pack your memories.',
-    type: 'photo',
-    content: {
-      intro: '[PLACEHOLDER] Our trip to …',
-      photos: [
-        photo('[PLACEHOLDER] The view from the window', { date: 'Day one' }),
-        photo('[PLACEHOLDER] That dinner', { date: 'Day two' }),
-        photo('[PLACEHOLDER] You, not knowing I took this', { date: 'Day three' }),
-      ],
-      story: '[PLACEHOLDER] What you remember most about that trip. The wrong turn. The rain. The best meal.',
-    },
-  },
-  {
-    day: 14,
-    title: 'Why You Are You',
-    subtitle: 'A note about you',
-    teaser: 'There’s only one of you.',
-    type: 'letter',
-    content: {
-      variant: 'note',
-      greeting: 'Why you are you',
-      body: [
-        '[PLACEHOLDER] You remember the names of everyone’s grandparents. You stop for every cat. You read the last page of a book first and refuse to apologise for it.',
-        'Nobody else is like this. I checked.',
-      ],
-      signature: '— still checking',
-    },
-  },
-  {
-    day: 15,
-    title: 'A Secret Present',
+    day: 20,
+    title: 'A Beauty Surprise',
     subtitle: 'Scratch to find it',
-    teaser: 'Something is hidden. Find it.',
+    teaser: 'Something lovely is hiding.',
     type: 'gift',
+    gifts: [sephora(6)],
     content: {
       reveal: 'scratch',
-      headline: 'You found it',
-      message: ['[PLACEHOLDER] A secret present needs a secret hiding place.'],
-      clue: '[PLACEHOLDER] Look under the second cushion of the sofa.',
-    },
-  },
-  {
-    day: 16,
-    title: 'Our Playlist',
-    subtitle: 'Songs that sound like us',
-    teaser: 'Twelve songs, one story.',
-    type: 'song',
-    content: {
-      song: 'Songs That Sound Like Us',
-      artist: 'A playlist for you',
-      why: ['[PLACEHOLDER] Every song here is attached to a moment. Some you’ll recognise immediately. One or two you’ll have to ask me about.'],
-      tracks: [
-        { title: '[PLACEHOLDER] First song', artist: 'Artist', note: 'The car, that night' },
-        { title: 'Second song', artist: 'Artist', note: 'Your kitchen' },
-        { title: 'Third song', artist: 'Artist', note: 'You know why' },
-        { title: 'Fourth song', artist: 'Artist' },
-        { title: 'Fifth song', artist: 'Artist' },
-      ],
-      link: null, // e.g. the Spotify playlist URL
-      linkLabel: 'Open the playlist',
-    },
-  },
-
-  /* ---------------------------------------------------------------------- *
-   * type: 'dream'
-   * content: { eyebrow, place, intro, details: [{ label, text }], closing }
-   * ---------------------------------------------------------------------- */
-  {
-    day: 17,
-    title: 'A Dream of Ours',
-    subtitle: 'Something for later',
-    teaser: 'Not now. But one day.',
-    type: 'dream',
-    content: {
-      eyebrow: 'One day, you and I',
-      place: '[PLACEHOLDER] Lisbon in the spring',
-      intro: '[PLACEHOLDER] A small dream I have with you. Not a promise with a date — just a place I keep picturing us in.',
-      image: photo('[PLACEHOLDER] A picture of the place'),
-      details: [
-        { label: 'Morning', text: 'Pastries still warm, a window table, nowhere to be.' },
-        { label: 'Afternoon', text: 'Getting a little lost on purpose.' },
-        { label: 'Evening', text: 'The yellow tram, and a sunset we don’t photograph.' },
-      ],
-      closing: 'Let’s keep this one somewhere safe.',
-    },
-  },
-  {
-    day: 18,
-    title: 'Your Choice',
-    subtitle: 'Pick our next date',
-    teaser: 'You decide. Completely.',
-    type: 'coupon',
-    content: {
-      choose: true,
-      intro: 'Pick one. Whatever you choose, I’m in — no complaints, no negotiating.',
-      coupons: [
-        { id: 'choice-trip', title: 'A Spontaneous Day Trip', description: '[PLACEHOLDER] We pick a direction and go.' },
-        { id: 'choice-dinner', title: 'Dinner, Made by Me', description: 'Three courses. Candles. I’ll even clean up.' },
-        { id: 'choice-yes-day', title: 'A Day of Yes', description: 'You choose everything, and I say yes.' },
-      ],
-    },
-  },
-  {
-    day: 19,
-    title: 'Open When You Miss Me',
-    subtitle: 'For the in-between days',
-    teaser: 'For when I’m not right there.',
-    type: 'letter',
-    content: {
-      variant: 'comfort',
-      greeting: 'If you’re reading this, you miss me.',
-      body: [
-        '[PLACEHOLDER] Good. I miss you too. Probably right now, actually.',
-        'Here is what I want you to do: put on the jumper I left at yours, play our song, and know that wherever I am, some part of my day is already turned towards you.',
-        'Distance is just a number of hours until I see you again.',
-      ],
-      signature: 'Counting them',
-    },
-  },
-  {
-    day: 20,
-    title: 'A Cozy Little Date',
-    subtitle: 'A winter invitation',
-    teaser: 'Wrap up warm.',
-    type: 'date',
-    content: {
-      invitation: 'You are cordially invited to',
-      event: 'Lights, Mulled Wine & a Long Walk',
-      when: '[PLACEHOLDER] Sunday, just after sunset',
-      where: 'The Christmas market, then wherever our feet go',
-      wear: 'Your warmest coat and that scarf',
-      bring: 'Cold hands. I’ll take care of them.',
-      note: '[PLACEHOLDER] I’ll be the one with two cups and a very pleased expression.',
-      rsvp: 'Count me in',
+      headline: 'A beauty surprise',
+      message: ['[PLACEHOLDER] Beauty surprise number six. Almost Christmas — time to shine.'],
+      clue: '[PLACEHOLDER] Where to find it.',
     },
   },
 
@@ -436,10 +383,11 @@ export const DAYS = [
    * ---------------------------------------------------------------------- */
   {
     day: 21,
-    title: 'Ten Things I Love',
+    title: 'A Little Personal Surprise',
     subtitle: 'Tap each one',
     teaser: 'Ten. For now.',
     type: 'reasons',
+    gifts: [], // personal surprise, intentionally no physical gift (and no Sephora)
     content: {
       intro: 'Ten little things. Open them one at a time.',
       reasons: [
@@ -459,49 +407,45 @@ export const DAYS = [
   },
   {
     day: 22,
-    title: 'Another Surprise',
-    subtitle: 'Find the heart',
-    teaser: 'Something is hiding among the ornaments.',
+    title: 'Today I Spoil You',
+    subtitle: 'Two beauty surprises',
+    teaser: 'Today is all about you.',
     type: 'gift',
+    gifts: [sephora(7), sephora(8)], // one combined beauty surprise, exactly 2 Sephora products
     content: {
-      reveal: 'findHeart',
-      headline: 'A surprise experience',
-      message: ['[PLACEHOLDER] Tomorrow afternoon is booked. Don’t make plans.', 'I’ll tell you nothing else — except to wear comfortable shoes.'],
-      clue: 'Be ready at 2 pm.',
+      reveal: 'unwrap',
+      headline: 'Today I spoil you',
+      message: [
+        '[PLACEHOLDER] Not one, but two beauty surprises — one big Sephora moment, all for you.',
+        'No reason needed. Today you just get spoiled.',
+      ],
+      clue: '[PLACEHOLDER] Where to find them.',
     },
   },
-
-  /* ---------------------------------------------------------------------- *
-   * type: 'secret'  — a password-protected message
-   * content: { prompt, hint, answers: ['accepted', 'answers'], reveal: { title, body:[..] } }
-   * Answers are compared case-insensitively, ignoring spaces & punctuation.
-   * ---------------------------------------------------------------------- */
   {
     day: 23,
-    title: 'Our Little World',
-    subtitle: 'Only you know this one',
-    teaser: 'You’ll need the password.',
-    type: 'secret',
+    title: 'From My Heart',
+    subtitle: 'A love letter',
+    teaser: 'Read this one slowly.',
+    type: 'letter',
+    gifts: [{ id: 'love-letter', name: 'Personal love letter' }],
     content: {
-      prompt: '[PLACEHOLDER] What do we call the neighbour’s cat?',
-      hint: 'It rhymes with “noodle”.',
-      answers: ['strudel', 'mr strudel'],
-      reveal: {
-        title: 'Of course you knew.',
-        body: [
-          '[PLACEHOLDER] Our little world is made of things nobody else would understand. The cat. The word we made up. The thing we say when the waiter leaves.',
-          'I love that we have a language. I love that you’re the only other person who speaks it.',
-        ],
-      },
+      greeting: 'My love,',
+      body: [
+        '[PLACEHOLDER] Write your love letter here — the one you’d want her to keep in a drawer for years.',
+        'Tell her what this year meant. Tell her what you see when you look at her.',
+      ],
+      signature: 'All my love, always',
     },
   },
   {
     day: 24,
     title: 'Christmas Eve',
     subtitle: 'The night before',
-    teaser: 'Read this one slowly.',
+    teaser: 'A cozy surprise for tonight.',
     type: 'letter',
     special: true,
+    gifts: [{ id: 'christmas-eve-surprise', name: 'Christmas Eve surprise' }],
     content: {
       variant: 'eve',
       greeting: 'My love,',
@@ -510,7 +454,7 @@ export const DAYS = [
         '[PLACEHOLDER] It’s the night before Christmas, and I wanted to write you something long. Something you could come back to.',
         'When I started making this calendar, I thought it would be hard to find twenty-five things to give you. It turned out to be the opposite. The hard part was choosing.',
         'This year you made the ordinary days feel like occasions. You made my small apartment feel like a home and my long weeks feel shorter.',
-        'I don’t know exactly what next year looks like. I know who I want to find out with.',
+        '[PLACEHOLDER] Tonight’s surprise: describe the cozy Christmas Eve plan — lights, something warm to drink, and the two of us.',
         'Sleep well tonight. Tomorrow there is one last door.',
       ],
       photos: [photo('[PLACEHOLDER] A Christmas photo of us', { date: 'December' })],
@@ -523,11 +467,12 @@ export const DAYS = [
    * ---------------------------------------------------------------------- */
   {
     day: 25,
-    title: 'Merry Christmas, My Love',
+    title: 'Our Christmas',
     subtitle: 'The final chapter',
     teaser: 'The last door. The best one.',
     type: 'finale',
     special: true,
+    gifts: [{ id: 'smartwatch', name: 'Smartwatch' }],
     content: {
       greeting: 'Merry Christmas',
       subGreeting: 'my love',
@@ -548,8 +493,8 @@ export const DAYS = [
       video: { src: null, embed: null, caption: '[PLACEHOLDER] A Christmas message' }, // optional — leave src/embed null to skip
       gift: {
         headline: 'Your Christmas gift',
-        message: '[PLACEHOLDER] Describe the final gift here — or where to find it.',
-        clue: 'Look under the tree. The small one, wrapped in burgundy.',
+        message: '[PLACEHOLDER] A smartwatch — so every moment of next year, you’ll have a little reminder of me on your wrist.',
+        clue: '[PLACEHOLDER] Look under the tree. The small one, wrapped in burgundy.',
       },
       closing: [
         '25 little surprises were never enough to show you how much you mean to me.',

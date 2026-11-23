@@ -78,7 +78,7 @@ grep -rn "PLACEHOLDER" src/data
    ```
    While `src` is `null`, or if a file is missing, the app shows an elegant placeholder frame instead of a broken image.
 
-**Videos.** Put an `.mp4` in `public/videos/` and set `src: '/videos/day-11.mp4'`. You can use a YouTube embed instead: `embed: 'https://www.youtube-nocookie.com/embed/VIDEO_ID'`. Videos never autoplay. An embed only loads after she taps it. If no video is set, Day 11 shows `fallbackText` instead.
+**Videos.** Put an `.mp4` in `public/videos/` and set `src: '/videos/day-11.mp4'`. You can use a YouTube embed instead: `embed: 'https://www.youtube-nocookie.com/embed/VIDEO_ID'`. Videos never autoplay. An embed only loads after she taps it. On a `video` day with no video set, its `fallbackText` is shown instead. The Christmas Day finale video is optional.
 
 **Songs.** Paste a Spotify, Apple Music or YouTube link into `link`. If you also want an in-page player that loads only on tap, set `embed`, for example `https://open.spotify.com/embed/track/ID`.
 
@@ -90,6 +90,7 @@ grep -rn "PLACEHOLDER" src/data
 - **Easter eggs:** edit `src/data/easterEggs.js`. The file header explains how each one is triggered.
 - **Greetings, year and your names:** edit `src/data/config.js`.
 - **Hiding a day from Memories:** add `memory: false` to that day.
+- **Gift schedule:** each day's `gifts: [{ id, name, brand }]` lists the physical gift(s) behind that door (the full schedule is in the header of `calendar.js`). On a `gift` day with two or more entries (Days 14, 17, 22), the unwrapped view lists every item inside.
 
 ## 4. Preview any day (developer mode)
 
