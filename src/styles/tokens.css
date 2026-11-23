@@ -1,0 +1,83 @@
+:root {
+  /* Palette */
+  --burgundy: #6d2639;
+  --burgundy-deep: #381b29;
+  --plum: #241820;
+  --plum-2: #2d1d27;
+  --gold: #c5a46d;
+  --gold-soft: #d9bd8c;
+  --gold-pale: #ead8b4;
+  --ivory: #f8f1e8;
+  --cream: #f0e5d8;
+  --rose: #d8b8b5;
+  --dusty: #b98b91;
+  --brown: #887264;
+  --ink: #2e1a22; /* text on paper */
+  --ink-soft: #5e4a4f;
+
+  /* Semantic */
+  --bg: var(--plum);
+  --text: var(--ivory);
+  --text-muted: rgba(240, 229, 216, 0.68);
+  --text-faint: rgba(240, 229, 216, 0.45);
+  --hairline: rgba(197, 164, 109, 0.28);
+  --hairline-strong: rgba(197, 164, 109, 0.55);
+  --surface: rgba(56, 27, 41, 0.62);
+  --surface-2: rgba(109, 38, 57, 0.28);
+
+  /* Type */
+  --font-serif: 'Cormorant Garamond', 'Cormorant', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Jost', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-hand: 'Caveat', 'Bradley Hand', cursive;
+
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.875rem;
+  --fs-md: 1rem;
+  --fs-lg: 1.1875rem;
+  --fs-xl: 1.5rem;
+  --fs-2xl: 2rem;
+  --fs-3xl: 2.625rem;
+  --fs-4xl: 3.25rem;
+
+  /* Spacing scale (4px base) */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 20px;
+  --s-6: 24px;
+  --s-8: 32px;
+  --s-10: 40px;
+  --s-12: 48px;
+  --s-16: 64px;
+
+  /* Radii — restrained */
+  --r-xs: 3px;
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 16px;
+  --r-pill: 999px;
+
+  /* Elevation — soft, warm */
+  --shadow-1: 0 1px 2px rgba(10, 4, 8, 0.25), 0 4px 14px rgba(10, 4, 8, 0.22);
+  --shadow-2: 0 2px 4px rgba(10, 4, 8, 0.25), 0 14px 40px rgba(10, 4, 8, 0.38);
+  --glow-gold: 0 0 0 1px rgba(217, 189, 140, 0.35), 0 0 22px rgba(217, 189, 140, 0.18);
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-soft: cubic-bezier(0.4, 0.1, 0.2, 1);
+  --t-fast: 160ms;
+  --t-med: 320ms;
+  --t-slow: 700ms;
+
+  /* Layout */
+  --page-max: 560px;
+  --gutter: 20px;
+  --nav-h: 64px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+
+  /* Textures (inline SVG noise — no network) */
+  --noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --paper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.6' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .32 0 0 0 0 .22 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E");
+}
